@@ -1,8 +1,8 @@
 #include "audiomanager.h"
 #include <QUrl>
+#include <QSound>
 
-
-AudioManager::AudioManager(QWidget *parent)
+AudioManager::AudioManager()
 {
     // sets up Audio Format
     format.setSampleRate(8000);
@@ -37,30 +37,40 @@ AudioManager::AudioManager(QWidget *parent)
     audioRecorder->setAudioInput(audioRecorder->defaultAudioInput());
 }
 
+AudioManager::~AudioManager() {
+    readTrack->close();
+    writeTrack->close();
+}
+
 bool AudioManager::isPlaying()
 {
     return playing;
 }
 
-void AudioManager::setRecording(bool recording) {
+void AudioManager::setRecording(bool recording)
+{
     this->recording = recording;
 }
 
-bool AudioManager::isRecording() {
+bool AudioManager::isRecording()
+{
     return recording;
 }
 
-QFile* AudioManager::getTrack() {
+QFile* AudioManager::getTrack()
+{
     return readTrack;
 }
 
 // loop track
-void AudioManager::loop() {
+void AudioManager::loop()
+{
     audioOutput->reset();
 }
 
 // play track
-void AudioManager::play() {
+void AudioManager::play()
+{
     playing = true;
     if (audioOutput->state() == QAudio::SuspendedState) {
         audioOutput->resume();
@@ -70,25 +80,30 @@ void AudioManager::play() {
 }
 
 // pause track
-void AudioManager::pause() {
+void AudioManager::pause()
+{
     playing = false;
     audioOutput->suspend();
 }
 
 // add sound file to sounds vector
-void AudioManager::addSound(QFile *file) {
+void AudioManager::addSound(QFile *file)
+{
     sounds.push_back(file);
 }
 
-// play the sound at sounds[index] and sound is added to track if recording, use audioOutput
-void AudioManager::playSound(int index) {
-    sounds[index]->open(QIODevice::ReadOnly);
-    QAudioOutput newAudioOutput(QAudioDeviceInfo::defaultOutputDevice(), format);
-    newAudioOutput.start(sounds[index]);
-//    sounds[index]->close();
+// play the sound at sounds[index] and sound is added to track if recording
+void AudioManager::playSound(int index)
+{
+    QSound::play(sounds[index]->fileName());
+    // if recording, add to track
 }
 
-// manages Audio Output State changes, see http://doc.qt.io/qt-5/qaudiooutput.html
-void AudioManager::audioOutputStateChanged(QAudio::State) {
-
+// manages Audio Output State changes
+void AudioManager::audioOutputStateChanged(QAudio::State state)
+{
+    // blah blah.close();
+    if (state == QAudio::StoppedState) {
+        qt_error_string();
+    }
 }

@@ -28,10 +28,14 @@ private:
     QPushButton *newSoundButton;
 
     QFrame *bottomFrame;
+    QVBoxLayout *vBox2;
     QHBoxLayout *hBox;
+    QHBoxLayout *hBox2;
     QPushButton *playButton;
     QPushButton *loopButton;
     QPushButton *recordButton;
+    QPushButton *micButton;
+    QPushButton *undoButton;
     QPushButton *saveButton;
 
 private slots:
@@ -39,7 +43,10 @@ private slots:
     void playClicked();
     void loopClicked();
     void recordClicked();
+    void micClicked();
+    void undoClicked();
     void saveClicked();
+    void soundButtonClicked();
 };
 
 #endif // MAINWINDOW_H

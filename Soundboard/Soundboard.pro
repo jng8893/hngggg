@@ -6,7 +6,7 @@
 
 QT       += core gui multimedia
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+    greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = Soundboard
 TEMPLATE = app
@@ -32,7 +32,5 @@ HEADERS += \
         mainwindow.h \
     audiomanager.h
 
-FORMS += \
-        mainwindow.ui
-
-DISTFILES +=
+RESOURCES += \
+    resources.qrc

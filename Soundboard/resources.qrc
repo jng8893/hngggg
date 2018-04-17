@@ -1,0 +1,12 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+    <file>sounds/hat.wav</file>
+    <file>sounds/kick.wav</file>
+    <file>sounds/perc_1.wav</file>
+    <file>sounds/perc_2.wav</file>
+    <file>sounds/perc_3.wav</file>
+    <file>sounds/snare_1.wav</file>
+    <file>sounds/snare_2.wav</file>
+    <file>sounds/hat.wav</file>
+</qresource>
+</RCC>

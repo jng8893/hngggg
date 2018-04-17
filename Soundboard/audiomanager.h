@@ -11,7 +11,8 @@ class AudioManager : public QObject
     Q_OBJECT
 
 public:
-    explicit AudioManager(QWidget *parent = 0);
+    AudioManager();
+    ~AudioManager();
 
     bool isPlaying();
     void setRecording(bool recording);
