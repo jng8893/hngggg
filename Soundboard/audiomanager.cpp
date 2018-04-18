@@ -1,23 +1,26 @@
 #include "audiomanager.h"
 #include <QUrl>
-#include <QSound>
+#include <QSoundEffect>
 
 AudioManager::AudioManager()
 {
     // sets up Audio Format
-    format.setSampleRate(8000);
-    format.setChannelCount(1);
-    format.setSampleSize(8);
+    format.setSampleRate(44100);
+    format.setChannelCount(2);
+    format.setSampleSize(16);
     format.setCodec("audio/pcm");
     format.setByteOrder(QAudioFormat::LittleEndian);
-    format.setSampleType(QAudioFormat::UnSignedInt);
+    format.setSampleType(QAudioFormat::SignedInt);
 
     // sets up readTrack
     readTrack = new QFile("readTrack.wav");
     readTrack->open(QIODevice::ReadOnly);
 
+    // sets up writeBuffer
+
+
     // sets up writeTrack
-    writeTrack = new QFile("writeTrack.amr");
+    writeTrack = new QFile("writeTrack.wav");
     writeTrack->open(QIODevice::WriteOnly);
 
     // sets up audioOutput
@@ -25,21 +28,15 @@ AudioManager::AudioManager()
     connect(audioOutput, SIGNAL(stateChanged(QAudio::State)),
             this, SLOT (audioOutputStateChanged(QAudio::State)));
 
-    // sets up Audio Encoder Settings
-    QAudioEncoderSettings audioSettings;
-    audioSettings.setCodec("audio/amr");
-    audioSettings.setQuality(QMultimedia::HighQuality);
-
-    // sets up audioRecorder
-    audioRecorder = new QAudioRecorder;
-    audioRecorder->setEncodingSettings(audioSettings);
-    audioRecorder->setOutputLocation(QUrl::fromLocalFile(writeTrack->fileName()));
-    audioRecorder->setAudioInput(audioRecorder->defaultAudioInput());
+    // sets up audioInput
+    audioInput = new QAudioInput(QAudioDeviceInfo::defaultInputDevice(), format);
 }
 
 AudioManager::~AudioManager() {
     readTrack->close();
     writeTrack->close();
+    readTrack->remove();
+    writeTrack->remove();
 }
 
 bool AudioManager::isPlaying()
@@ -47,14 +44,24 @@ bool AudioManager::isPlaying()
     return playing;
 }
 
-void AudioManager::setRecording(bool recording)
+void AudioManager::setRecordingSoundboard(bool recording)
 {
-    this->recording = recording;
+    this->recordingSoundboard = recording;
 }
 
-bool AudioManager::isRecording()
+bool AudioManager::isRecordingSoundboard()
 {
-    return recording;
+    return recordingSoundboard;
+}
+
+void AudioManager::setRecordingMic(bool recording)
+{
+    this->recordingMic = recording;
+}
+
+bool AudioManager::isRecordingMic()
+{
+    return recordingMic;
 }
 
 QFile* AudioManager::getTrack()
@@ -65,7 +72,17 @@ QFile* AudioManager::getTrack()
 // loop track
 void AudioManager::loop()
 {
-    audioOutput->reset();
+    // replace readTrack with writeTrack and resets writeTrack
+    readTrack->close();
+    writeTrack->close();
+    readTrack->remove();
+    writeTrack->copy(readTrack->fileName());
+    writeTrack->remove();
+    readTrack->open(QIODevice::ReadOnly);
+    writeTrack->open(QIODevice::WriteOnly);
+
+    audioOutput->stop();
+    audioOutput->start();
 }
 
 // play track
@@ -75,7 +92,7 @@ void AudioManager::play()
     if (audioOutput->state() == QAudio::SuspendedState) {
         audioOutput->resume();
     } else {
-        audioOutput->start();
+        audioOutput->start(readTrack);
     }
 }
 
@@ -95,15 +112,34 @@ void AudioManager::addSound(QFile *file)
 // play the sound at sounds[index] and sound is added to track if recording
 void AudioManager::playSound(int index)
 {
-    QSound::play(sounds[index]->fileName());
-    // if recording, add to track
+    // play sound
+    QSoundEffect *sound = new QSoundEffect();
+    sound->setSource(QUrl::fromLocalFile(sounds[index]->fileName()));
+    sound->setLoopCount(1);
+    sound->setVolume(1.0f);
+    sound->play();
+
+    // if recording, write sound to writeBuffer
+
 }
 
 // manages Audio Output State changes
 void AudioManager::audioOutputStateChanged(QAudio::State state)
 {
-    // blah blah.close();
-    if (state == QAudio::StoppedState) {
-        qt_error_string();
+    if (state == QAudio::ActiveState) {
+        // start writing readTrack to writeBuffer
+
+        // if recording from mic, start writing to writeBuffer
+
+    } else if (state == QAudio::SuspendedState) {
+        // pause writing readTrack to writeBuffer
+
+        // if recording from mic, pause writing to writeBuffer
+
+    } else if (state == QAudio::IdleState) {
+        audioOutput->stop();
+        readTrack->close();
+        readTrack->open(QIODevice::ReadOnly);
+        audioOutput->start(readTrack);
     }
 }

@@ -33,7 +33,6 @@ private:
     QAudioFormat format;
     QAudioOutput *audioOutput;
     QAudioInput *audioInput;
-//    QAudioRecorder *audioRecorder;
 
     bool playing;
     bool recordingSoundboard;

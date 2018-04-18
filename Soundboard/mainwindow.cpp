@@ -208,36 +208,55 @@ void MainWindow::newSoundClicked()
 // Play Button functionality - play or pause track
 void MainWindow::playClicked()
 {
-    if (playButton->text().compare(QString("Play")) == 0) {
-        playButton->setText("Pause");
-
-        audioManager->play();
+    if (!audioManager->getTrack()->exists()) {
+        QErrorMessage *errorMessage = new QErrorMessage();
+        errorMessage->showMessage("Track does not yet exist");
+        playButton->setChecked(false);
     } else {
-        playButton->setText("Play");
+        if (playButton->text().compare(QString("Play")) == 0) {
+            playButton->setText("Pause");
 
-        audioManager->pause();
+            audioManager->play();
+        } else {
+            playButton->setText("Play");
+
+            audioManager->pause();
+        }
     }
 }
 
 // Loop Button functionality - loop the track
 void MainWindow::loopClicked()
 {
-    audioManager->loop();
+    if (!audioManager->getTrack()->exists()) {
+        QErrorMessage *errorMessage = new QErrorMessage();
+        errorMessage->showMessage("Track does not yet exist");
+    } else {
+        audioManager->loop();
+    }
 }
 
 // Record Soundboard Button functionality - records from soundboard
 void MainWindow::recordClicked()
 {
-    if (recordButton->text().compare(QString("Record")) == 0) {
+    if (recordButton->text().compare(QString("Record Soundboard")) == 0) {
         recordButton->setText("Stop Recording");
+        audioManager->setRecordingSoundboard(true);
     } else {
-        recordButton->setText("Record");
+        recordButton->setText("Record Soundboard");
+        audioManager->setRecordingSoundboard(false);
     }
 }
 
 // Mic Button functionality - records from microphone
 void MainWindow::micClicked() {
-
+    if (micButton->text().compare(QString("Record Microphone")) == 0) {
+        micButton->setText("Stop Recording");
+        audioManager->setRecordingMic(true);
+    } else {
+        micButton->setText("Record Microphone");
+        audioManager->setRecordingMic(false);
+    }
 }
 
 // Undo Button functionality - undoes last layer
@@ -297,4 +316,10 @@ void MainWindow::soundButtonClicked() {
     }
 
     audioManager->playSound(index);
+}
+
+void MainWindow::closeEvent(QCloseEvent *event) {
+    Q_UNUSED(event);
+
+    delete audioManager;
 }

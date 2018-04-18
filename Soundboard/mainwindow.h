@@ -38,6 +38,8 @@ private:
     QPushButton *undoButton;
     QPushButton *saveButton;
 
+    void closeEvent(QCloseEvent *event);
+
 private slots:
     void newSoundClicked();
     void playClicked();
